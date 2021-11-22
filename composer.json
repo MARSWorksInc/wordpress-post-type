@@ -1,0 +1,21 @@
+{
+    "name": "marspress/post-type",
+    "description": "Utility package to initiate new post types in WordPress.",
+    "type": "library",
+    "license": "GPL-2.0",
+    "autoload": {
+        "psr-4": {
+            "MarsPress\\PostType\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "MARSWorks Inc",
+            "email": "wordpress@marsworks.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.4"
+    }
+}
