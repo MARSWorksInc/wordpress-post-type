@@ -21,6 +21,8 @@ if( ! class_exists( 'Type' ) )
 
         private string $adminNotices;
 
+        private array $rewriteRules;
+
         public function __construct(
             string $_key,
             string $_labelSingle,
@@ -68,14 +70,28 @@ if( ! class_exists( 'Type' ) )
             ];
 
             add_action( 'init', [ $this, 'register_post_type' ], 10, 0 );
-            //TODO:: handle advanced slug replacements.
+            add_action( 'init', [ $this, 'register_rewrite_rules' ], 10, 0 );
+
+        }
+
+        public function get_key(): string
+        {
+
+            return $this->key;
+
+        }
+
+        public function get_object(): ?\WP_Post_Type
+        {
+
+            return \get_post_type_object( $this->key );
 
         }
 
         public function register_post_type()
         {
 
-            if( ! $this->override && post_type_exists( $this->key ) ){
+            if( ! $this->override && \post_type_exists( $this->key ) ){
 
                 $this->adminNotices = "The post type <strong><em>{$this->key}</em></strong> already exists. Please update your post type to something unique.";
                 add_action( 'admin_notices', function (){
@@ -86,14 +102,46 @@ if( ! class_exists( 'Type' ) )
 
             }
 
-            register_post_type( $this->key, $this->arguments );
+            \register_post_type( $this->key, $this->arguments );
+
+        }
+
+        public function register_rewrite_rules()
+        {
+
+            if( isset( $this->rewriteRules ) ){
+
+                foreach ( $this->rewriteRules as $_rule ){
+
+                    \add_rewrite_rule( $_rule['rule'], $_rule['match'], $_rule['after'] );
+
+                }
+
+            }
+
+        }
+
+        public function add_rewrite_rule( $_rule, $_match, $_after = 'top' )
+        {
+
+            if( ! isset( $this->rewriteRules ) ){
+
+                $this->rewriteRules = [];
+
+            }
+
+            $this->rewriteRules[] = [
+                'rule'      => $_rule,
+                'match'     => $_match,
+                'after'     => $_after,
+            ];
 
         }
 
         private function output_admin_notice(): string
         {
 
-            if( isset( $this->adminNotices ) && current_user_can( 'administrator' ) ){
+            if( isset( $this->adminNotices ) && \current_user_can( 'administrator' ) ){
 
                 return "<div style='background: white; padding: 12px 20px; border-radius: 3px; border-left: 5px solid #dc3545;' class='notice notice-error is-dismissible'><p style='font-size: 16px;'>$this->adminNotices</p><small><em>This message is only visible to site admins</em></small></div>";
 
